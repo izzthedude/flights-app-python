@@ -12,7 +12,7 @@ This application is made of two parts:
 
 * Client
     - web UI that communicates with REST endpoints available through an API app (see below).
-    - is a React.js project located in the [client](src/client) folder.
+    - is a React.js project folder.
 * API
     - uses the [MariaDB Python Connector](https://github.com/mariadb-corporation/mariadb-connector-python) to connect to MariaDB.
     - is a Python project located int the [api](src/api) folder.
@@ -38,7 +38,7 @@ This sample application requires the following to be installed/enabled on your m
 
 * [Python (v. 3+)](https://www.python.org/downloads/)
 * [MariaDB Connector/C (v. 3.1.5+)](https://mariadb.com/products/skysql/docs/clients/mariadb-connector-c-for-skysql-services/) (used by Connector/Python)
-* [Node.js (v. 12+)](https://nodejs.org/docs/latest-v12.x/api/index.html) (for the Client/UI app)
+* [Node.js (v. 18+)](https://nodejs.org/en/) (for the Client/UI app)
 * [NPM (v. 6+)](https://docs.npmjs.com/) (for the Client/UI app)
 * [MariaDB command-line client](https://mariadb.com/products/skysql/docs/clients/mariadb-clients/mariadb-client/) (optional), used to connect to MariaDB database instances.
 
@@ -46,22 +46,24 @@ This sample application requires the following to be installed/enabled on your m
 
 [MariaDB](https://mariadb.com) is a community-developed, commercially supported relational database management system, and the database you'll be using for this application.
 
-This sample uses MariaDB ColumnStore. The quickest way to get started is by using the [MariaDB ColumnStore Quickstart Guide](https://github.com/mariadb-developers/mariadb-columnstore-quickstart), which will walk you through the process of getting a MariaDB database instance (via Docker container) up, running and loaded with the data necessary for this sample app.
+This sample uses MariaDB ColumnStore. The quickest way to get started is by using the [MariaDB ColumnStore Quickstart Guide](https://github.com/izzthedude/mariadb-columnstore-quickstart), which will walk you through the process of getting a MariaDB database instance (via Docker container) up, running and loaded with the data necessary for this sample app.
 
-**TL;DR** - Check out the [MariaDB ColumnStore Quickstart](https://github.com/mariadb-developers/mariadb-columnstore-quickstart) before proceeding to the next step.
+**TL;DR** - Check out the [MariaDB ColumnStore Quickstart](https://github.com/izzthedude/mariadb-columnstore-quickstart) before proceeding to the next step.
 
 ## 2.) Get the code <a name="code"></a>
 
 First, use [git](git-scm.org) (through CLI or a client) to retrieve the code using `git clone`:
 
-```
-$ git clone https://github.com/mariadb-developers/flights-app-nodejs.git
+```bash
+git clone https://github.com/izzthedude/flights-app-python.git
+
+cd flights-app-python
 ```
 
-Next, because this repo uses a [git submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules), you will need to pull the [client application](https://github.com/mariadb-developers/todo-app-client) using:
+Next, because this repo uses a [git submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules), you will need to pull the [client application](https://github.com/izzthedude/flights-app-client) using:
 
 ```bash
-$ git submodule update --init --recursive
+git submodule update --init --recursive
 ```
 
 ## 3.) Configure, Build and Run the App <a name="app"></a>
@@ -72,28 +74,36 @@ This application is made of two parts:
 
 * Client
     - web UI that communicates with REST endpoints available through an API app (see below).
-    - is a React.js project located in the [client](src/client) folder.
+    - is a React.js project folder.
 * API
-    - uses the [MariaDB Node.js Connector](https://github.com/mariadb-corporation/mariadb-connector-nodejs) to connect to MariaDB.
-    - is a Node.js project located in the [api](src/api) folder.
+    - uses the [MariaDB Python Connector](https://github.com/mariadb-corporation/mariadb-connector-python) to connect to MariaDB.
+    - is a Python project located int the [api](src/api) folder.
 
 ### a.) Configure the app <a name="configure-api-app"></a>
 
-Configure the MariaDB connection by adding an [.env file](https://pypi.org/project/python-dotenv/) to the project within the [api](src/api) folder.
+Configure the MariaDB connection by adding an [.env file](https://pypi.org/project/python-dotenv/) to the project within the [api](src/api) folder. Only change the values for `DB_HOST` and `DB_PASS`.
+
+#### Host address
+To find out the host address, run this command:
+```bash
+docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' mcs_container
+```
+This will return an IP address that will be used in place of `<host_address>`.
+
+#### Password
+The `<password>` is whatever you have set as the password in the MariaDB Docker container. Refer [here](https://github.com/izzthedude/mariadb-columnstore-quickstart) for more information.
 
 Example implementation:
 
 ```
 DB_HOST=<host_address>
-DB_PORT=<port_number>
-DB_USER=<username>
+DB_PORT=3306
+DB_USER=app_user
 DB_PASS=<password>
 DB_NAME=travel
 ```
 
-**Configuring db.js**
-
-The environmental variables from `.env` are used within [src/api/tasks.py](src/api/tasks.py) for the MariaDB Python Connector connection configuration settings:
+The environmental variables from `.env` are used within [src/api/_env.py](src/api/_env.py) for the MariaDB Python Connector connection configuration settings:
 
 ```python
 config = {
@@ -115,8 +125,10 @@ A virtual environment is a directory tree which contains Python executable files
 
 Creation of [virtual environments](https://docs.python.org/3/library/venv.html?ref=hackernoon.com#venv-def) is done by executing the following command (within [/src/api](src/api)):
 
-```
-$ python3 -m venv venv
+```bash
+cd src/api
+
+python3 -m venv venv
 ```
 
 **Tip**: Tip: pyvenv is only available in Python 3.4 or later. For older versions please use the [virtualenv](https://virtualenv.pypa.io/en/latest/) tool. 
@@ -126,7 +138,7 @@ Before you can start installing or using packages in your virtual environment, y
 Activate the virtual environment using the following command (within [/src/api](src/api)):
 
 ```bash
-$ . venv/bin/activate activate
+./venv/bin/activate
 ```
 
 ### c.) Install Python packages <a name="install-python-packages"></a>
@@ -137,40 +149,32 @@ $ . venv/bin/activate activate
 
 This app also uses the MariaDB Python Connector to connect to and communicate with MariaDB databases. 
 
-Install the necessary packages by executing the following command (within [/src/api](src/api)):
+Install the necessary packages by executing the following command:
 
 ```bash
-$ pip3 install flask mariadb python-dotenv
+pip3 install -r ../../requirements.txt
 ```
 
 ### d.) Build and run the [API app](src/api) <a name="build-run-api"></a>
 
 Once you've pulled down the code and have verified that all of the required packages are installed you're ready to run the application! 
 
-From [/src/api](src/api) execute the following CLI command to start the the Python project:
+Execute the following CLI command to start the the Python project (within [/src/api](src/api)):
 
 ```bash
-$ python3 api.py
+python3 api.py
 ```
+
 ### e.) Build and run the [UI (Client) app](https://github.com/mariadb-developers/flights-app-client) <a name="build-run-client"></a>
 
 Once the API project is running you can now communicate with the exposed endpoints directly (via HTTP requests) or with the application UI, which is contained with the `client` folder of this repo.
 
-To start the `client` application follow the instructions [here](https://github.com/mariadb-developers/flights-app-client).
+To start the `client` application follow the instructions [here](https://github.com/izzthedude/flights-app-client).
 
 ## Support and Contribution <a name="support-contribution"></a>
 
-Please feel free to submit PR's, issues or requests to this project project directly.
+This is a fork strictly for personal/academic use. This fork is **NOT** officially affiliated or endorsed by the original developers. As such, any issues from my changes **MUST NOT** be reported to them.
 
-If you have any other questions, comments, or looking for more information on MariaDB please check out:
-
-* [MariaDB Developer Hub](https://mariadb.com/developers)
-* [MariaDB Community Slack](https://r.mariadb.com/join-community-slack)
-
-Or reach out to us diretly via:
-
-* [developers@mariadb.com](mailto:developers@mariadb.com)
-* [MariaDB Twitter](https://twitter.com/mariadb)
 
 ## License <a name="license"></a>
 [![License](https://img.shields.io/badge/License-MIT-blue.svg?style=plastic)](https://opensource.org/licenses/MIT)

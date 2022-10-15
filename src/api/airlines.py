@@ -1,4 +1,4 @@
-import simplejson as json
+import json
 import mariadb
 from flask import Blueprint
 

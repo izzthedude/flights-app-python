@@ -1,4 +1,4 @@
-import json
+import simplejson as json
 import datetime
 import mariadb
 from flask import request

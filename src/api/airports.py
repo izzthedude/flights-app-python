@@ -1,22 +1,11 @@
-import sys
 import simplejson as json
 import mariadb
-import os
-import flask
-from flask import request
 from flask import Blueprint
-from dotenv import load_dotenv
 
-load_dotenv()
+from _env import config
 
 airports = Blueprint('airports', __name__)
 
-config = {
-    'host': os.getenv("DB_HOST"),
-    'port': int(os.getenv("DB_PORT")),
-    'user': os.getenv("DB_USER"),
-    'password': os.getenv("DB_PASS")
-}
 
 @airports.route('/api/airports', methods=['GET'])
 def index():

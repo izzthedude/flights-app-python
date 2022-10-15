@@ -1,28 +1,18 @@
-import sys
 import simplejson as json
 import datetime
-import decimal
 import mariadb
-import os
-import flask
 from flask import request
 from flask import Blueprint
-from dotenv import load_dotenv
 
-load_dotenv()
+from _env import config
 
 flights = Blueprint('flights', __name__)
 
-config = {
-    'host': os.getenv("DB_HOST"),
-    'port': int(os.getenv("DB_PORT")),
-    'user': os.getenv("DB_USER"),
-    'password': os.getenv("DB_PASS")
-}
 
 def converter(o):
     if isinstance(o, datetime.datetime):
         return o.__str__()
+
 
 @flights.route('/api/flights/airlines_stats', methods=['GET'])
 def airline_stats():

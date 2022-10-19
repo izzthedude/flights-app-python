@@ -36,11 +36,11 @@ This README will walk you through the steps for getting the `Flights` web applic
 
 This sample application requires the following to be installed/enabled on your machine:
 
-* [Python (v. 3+)](https://www.python.org/downloads/)
+* [Python (v. 3+)](https://www.python.org/downloads/) (development headers must also be installed, e.g. python3-dev for Debian/Ubuntu)
 * [MariaDB Connector/C (v. 3.1.5+)](https://mariadb.com/products/skysql/docs/clients/mariadb-connector-c-for-skysql-services/) (used by Connector/Python)
 * [Node.js (v. 18+)](https://nodejs.org/en/) (for the Client/UI app)
 * [NPM (v. 6+)](https://docs.npmjs.com/) (for the Client/UI app)
-* [MariaDB command-line client](https://mariadb.com/products/skysql/docs/clients/mariadb-clients/mariadb-client/) (optional), used to connect to MariaDB database instances.
+* [MariaDB command-line client](https://mariadb.com/products/skysql/docs/clients/mariadb-clients/mariadb-client/) used to connect to MariaDB database instances and used by the `mariadb` Python package
 
 ## 1.) Getting Started with MariaDB ColumnStore <a name="mariadb"></a>
 
@@ -81,14 +81,7 @@ This application is made of two parts:
 
 ### a.) Configure the app <a name="configure-api-app"></a>
 
-Configure the MariaDB connection by adding an [.env file](https://pypi.org/project/python-dotenv/) to the project within the [api](src/api) folder. Only change the values for `DB_HOST` and `DB_PASS`.
-
-#### Host address
-To find out the host address, run this command:
-```bash
-docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' mcs_container
-```
-This will return an IP address that will be used in place of `<host_address>`.
+Configure the MariaDB connection by adding an [.env file](https://pypi.org/project/python-dotenv/) to the project within the [api](src/api) folder. Only change the values for `DB_PASS`.
 
 #### Password
 The `<password>` is whatever you have set as the password in the MariaDB Docker container. Refer [here](https://github.com/izzthedude/mariadb-columnstore-quickstart) for more information.
@@ -96,7 +89,7 @@ The `<password>` is whatever you have set as the password in the MariaDB Docker 
 Example implementation:
 
 ```
-DB_HOST=<host_address>
+DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_USER=app_user
 DB_PASS=<password>
@@ -114,6 +107,13 @@ config = {
     'database': os.getenv("DB_NAME")
 }
 ```
+
+#### Host address
+If `127.0.0.1` does not work, try running this command:
+```bash
+docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' mcs_container
+```
+This will return an IP address that you can try to use in place of `127.0.0.1`. If it still does not work, Google may or may not help with your issue more than I can lol.
 
 **Configuring .env and tasks.py for the MariaDB cloud database service [SkySQL](https://mariadb.com/products/skysql/)**
 
@@ -165,7 +165,7 @@ Execute the following CLI command to start the the Python project (within [/src/
 python3 api.py
 ```
 
-### e.) Build and run the [UI (Client) app](https://github.com/mariadb-developers/flights-app-client) <a name="build-run-client"></a>
+### e.) Build and run the [UI (Client) app](https://github.com/izzthedude/flights-app-client) <a name="build-run-client"></a>
 
 Once the API project is running you can now communicate with the exposed endpoints directly (via HTTP requests) or with the application UI, which is contained with the `client` folder of this repo.
 
